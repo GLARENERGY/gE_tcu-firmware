@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Glarenergy TCU - Terminal</title>
+<style>
+html,body{height:100%;margin:0;background:#0d1117;color:#c9d1d9;font-family:system-ui,sans-serif}
+#bar{display:flex;gap:8px;align-items:center;padding:8px 12px;background:#161b22;border-bottom:1px solid #30363d;flex-wrap:wrap}
+#bar b{margin-right:auto}
+button{background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;padding:5px 12px;cursor:pointer}
+button:hover{background:#30363d}
+label{font-size:.85rem}
+#st{font-size:.8rem;color:#8b949e}
+#log{position:absolute;top:46px;bottom:0;left:0;right:0;overflow:auto;padding:8px 12px;font:12px/1.35 ui-monospace,Menlo,Consolas,monospace;white-space:pre-wrap;word-break:break-all}
+.E{color:#ff7b72}.W{color:#e3b341}.I{color:#7ee787}.D,.V{color:#8b949e}.S{color:#58a6ff}
+</style></head><body>
+<div id="bar"><b>Glarenergy TCU - Serial Terminal</b><span id="st">connecting...</span>
+<label><input type="checkbox" id="as" checked> auto-scroll</label>
+<button id="pa">Pause</button><button id="cl">Clear</button><button id="dl">Download</button><a href="/" style="color:#58a6ff">&larr; Back</a></div>
+<div id="log"></div>
+<script>
+var next=0,paused=false,box=document.getElementById('log'),st=document.getElementById('st'),all='',fails=0;
+var ESC=new RegExp(String.fromCharCode(27)+'\\[[0-9;]*m','g');
+function add(text,cls){
+  var lines=text.replace(ESC,'').split('\n');
+  for(var i=0;i<lines.length;i++){
+    if(!lines[i])continue;
+    var d=document.createElement('div');
+    d.className=cls||(/^[EWIDV] \(/.test(lines[i])?lines[i][0]:'');
+    d.textContent=lines[i];box.appendChild(d);all+=lines[i]+'\n';
+  }
+  while(box.childNodes.length>2000)box.removeChild(box.firstChild);
+  if(all.length>400000)all=all.slice(-300000);
+  if(document.getElementById('as').checked)box.scrollTop=box.scrollHeight;
+}
+function poll(){
+  if(paused){setTimeout(poll,500);return;}
+  fetch('/terminal/log?from='+next+'&_='+Date.now()).then(function(r){
+    var n=parseInt(r.headers.get('X-Next'),10);
+    var reset=r.headers.get('X-Reset')==='1';
+    return r.text().then(function(t){
+      if(reset)add('--- device restarted / log reset ---','S');
+      if(!isNaN(n))next=n;
+      if(t)add(t);
+      fails=0;st.textContent='live';st.style.color='#7ee787';
+      setTimeout(poll,t.length?100:500);
+    });
+  }).catch(function(){
+    fails++;st.textContent='disconnected';st.style.color='#ff7b72';setTimeout(poll,1000);
+  });
+}
+document.getElementById('pa').onclick=function(){paused=!paused;this.textContent=paused?'Resume':'Pause';};
+document.getElementById('cl').onclick=function(){box.innerHTML='';all='';};
+document.getElementById('dl').onclick=function(){
+  var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([all],{type:'text/plain'}));
+  a.download='glarenergy-tcu-log.txt';a.click();
+};
+poll();
+</script></body></html>

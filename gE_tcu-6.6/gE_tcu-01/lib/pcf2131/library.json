@@ -1,0 +1,7 @@
+{
+  "name": "pcf2131",
+  "version": "1.0.0",
+  "description": "NXP PCF2131 RTC driver for ESP-IDF (I2C master driver v5.x)",
+  "frameworks": "espidf",
+  "platforms": "espressif32"
+}

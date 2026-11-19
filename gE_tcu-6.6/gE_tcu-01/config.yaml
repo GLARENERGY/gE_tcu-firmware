@@ -1,0 +1,63 @@
+# Edit pins here. AppConfig.h is regenerated from this file at build time.
+# ESP32-C6: avoid GPIO 8/9 (strapping), 12/13 (USB), 16/17 (console UART0).
+# NOTE: GPIO 4/5/15 are strapping/JTAG pins - fine with I2C pull-ups, but keep the motor driver
+#       inputs pulled down so the motor cannot move while the chip boots.
+
+pins:
+  I2C_SDA: 6            # shared bus: PCF2131 RTC + LIS2DW12 (ESP32-C6 has ONE usable I2C controller)
+  I2C_SCL: 7
+  RTC_INTA_PIN: 11      # PCF2131 INTA (open-drain, active low) -> minute alarm
+  RTC_INTB_PIN: 10      # PCF2131 INTB (not used yet)
+  PIN_MOTOR_PLUS: 15    # motor A   (A=1,B=0 = "up", A=0,B=1 = "down", 0/0 = stop)
+  PIN_MOTOR_MINUS: 23   # motor B
+  PIN_MODE_TOGGLE: 1    # placeholder - momentary button, each press toggles AUTO/MANUAL
+  PIN_UP_BUTTON: 2      # placeholder - momentary, manual "up" while held
+  PIN_DOWN_BUTTON: 3    # placeholder - momentary, manual "down" while held
+
+  # W5500 Ethernet (SPI) - for the Modbus TCP / SCADA link
+  ETH_MISO_PIN: 19
+  ETH_MOSI_PIN: 18
+  ETH_CS_PIN: 21
+  ETH_SCLK_PIN: 20
+  ETH_INT_PIN: 22
+
+  # RS485 anemometer (auto-direction RS485 module, TX/RX only)
+  ANEMOMETER_TX_PIN: 4
+  ANEMOMETER_RX_PIN: 5
+
+  # Built-in WS2812 RGB status LED (ESP32-C6-DevKitM-1: GPIO 8)
+  RGB_LED_PIN: 8
+
+others:
+  MAX_TILT_LIMIT: 50
+  CLEAN_ANGLE: 45
+  USE_WIFI: true
+  USE_SNTP: true
+  HACK_TIME_SET_WIFI_OFF: false
+  HACK_AP_AGAIN_AFTER_SYNC: false
+  PROD: true
+  ENABLE_MDNS: true
+  TABLE_ANGLES: unbounded
+  track_restart: true
+  INCLINOMETER_AXIS: 0 # 0:X, 1:Y, 2:Z   <- set after the bench tilt test
+  INCLINOMETER_REVERSE: false
+  INCLINOMETER_OFFSET: 0.0
+  MOTOR_DEADBAND: 0.5
+  MOTOR_REVERSE: false       # true = swap which motor direction is "up" (angle increasing)
+  MOTOR_MAX_RUN_S: 300       # one move may not take longer than this
+  MOTOR_NO_PROGRESS_S: 30    # error must shrink by MOTOR_MIN_PROGRESS_DEG within this time
+  MOTOR_MIN_PROGRESS_DEG: 0.3
+  TRACKER_INTERVAL_MINUTES: 10   # SolTrack table step; the motor moves once per step
+  GROUND_SLOPE: 0.0          # degrees, positive = south tilt
+  SOLAR_PANEL_WIDTH: 3.0     # panel width (m)            - DEFAULT, can be changed from the web UI (stored in NVS)
+  SOLAR_PITCH_DISTANCE: 4.0  # row-to-row pitch (m)       - DEFAULT, can be changed from the web UI (stored in NVS)
+  BACKTRACKING_ENABLED: true
+  ANEMOMETER_BAUD: 4800      # sensor factory default
+  ANEMOMETER_ADDR: 1         # sensor factory default Modbus address
+
+  # Ethernet / SCADA: defaults to DHCP. For a fixed address, set ETH_USE_STATIC_IP: true
+  # and uncomment the three lines below (edit to your SCADA subnet).
+  # ETH_USE_STATIC_IP: true
+  # ETH_STATIC_IP: "192.168.1.50"
+  # ETH_STATIC_GW: "192.168.1.1"
+  # ETH_STATIC_NETMASK: "255.255.255.0"

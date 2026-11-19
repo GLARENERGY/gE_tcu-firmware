@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en" class="has-background-black-bis">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glarenergy TCU</title>
+    <link rel="stylesheet" href="/bulma.css">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div id="header-progress"></div>
+    <nav class="navbar is-transparent">
+        <div class="container">
+            <div class="navbar-brand topbar">
+                <a class="navbar-item has-text-weight-black is-size-4 has-text-white" href="/">GLARENERGY</a>
+                <div class="navbar-item"><span id="tracking-tag" class="tag is-rounded" style="display:none">...</span><span id="wind-tag" class="tag is-rounded is-dark ml-2 has-text-weight-bold" title="Wind speed">WIND ---</span></div>
+                <div class="navbar-item topbar-right"><span id="mode-tag" class="tag is-rounded">...</span></div>
+            </div>
+        </div>
+    </nav>
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-9">
+                    <div class="columns is-multiline">
+                        <div class="column is-12">
+                    <div class="card">
+                        <div class="card-content">
+                            <div class="columns is-mobile">
+                                <div class="column is-4"><p class="heading-label">ANGLE SENSOR</p><p id="val-current-tilt" class="tilt-val has-text-info">...</p></div>
+                                <div class="column is-4"><p class="heading-label">TILT ANGLE</p><p id="val-target-tilt" class="tilt-val has-text-grey-light">...</p></div>
+                                <div class="column is-4"><p class="heading-label">NEXT MOVEMENT</p><p id="val-target-30" class="tilt-val has-text-warning">...</p></div>
+                            </div>
+                            <div class="columns is-mobile mt-1 mb-0">
+                                <div class="column is-4 py-0"><span id="progress-hint" class="is-size-7 has-text-grey">Sync Precision: ...</span></div>
+                                <div class="column is-4 py-0"><span id="val-current-time" class="is-size-7 has-text-grey">...</span></div>
+                                <div class="column is-4 py-0"><span id="next-move-hint" class="is-size-7 has-text-grey">Predicted IST</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                        <div class="column is-4">
+                    <div class="card">
+                        <header class="card-header"><p class="card-header-title">Status Data</p></header>
+                        <div class="card-content">
+                            <div id="prod-data">
+                                <div class="telemetry-row"><span>RISE</span><span id="sunrise" class="has-text-weight-bold">...</span></div>
+                                <div class="telemetry-row"><span>SET</span><span id="sunset" class="has-text-weight-bold">...</span></div>
+                                <div class="heading-label mt-4 mb-2">DAY SCHEDULE</div>
+                                <div id="tilt-table" class="table-scroll"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                        <div class="column is-8">
+                    <div class="card">
+                        <header class="card-header"><p class="card-header-title">Live Tracker Preview</p></header>
+                        <div class="card-content">
+                            <div class="tracker-svg-container">
+                                <svg width="220" height="220" viewBox="-110 -110 220 220" style="overflow:visible;">
+                                    <defs>
+                                        <linearGradient id="pG" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#3b82f6" /><stop offset="100%" style="stop-color:#2563eb" /></linearGradient>
+                                        <radialGradient id="sG" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#fbbf24" stop-opacity="0.3"/><stop offset="100%" stop-color="#fbbf24" stop-opacity="0"/></radialGradient>
+                                    </defs>
+                                    <g id="svg-scale"></g>
+                                    <text x="-110" y="0" fill="#f59e0b" font-size="10" font-weight="bold" text-anchor="middle" alignment-baseline="middle">W</text>
+                                    <text x="110" y="0" fill="#3b82f6" font-size="10" font-weight="bold" text-anchor="middle" alignment-baseline="middle">E</text>
+                                    <g id="svg-sun" style="transition: opacity 0.5s;"><circle cx="0" cy="-160" r="100" fill="url(#sG)" /></g>
+                                    <line x1="0" y1="0" x2="0" y2="80" stroke="#334155" stroke-width="6" stroke-linecap="round" /><circle cx="0" cy="0" r="10" fill="#0f172a" stroke="#334155" stroke-width="2" />
+                                    <g id="svg-target"><rect x="-75" y="-4" width="150" height="8" fill="rgba(59, 130, 246, 0.1)" rx="2" /><line x1="0" y1="-4" x2="0" y2="-40" stroke="rgba(59, 130, 246, 0.2)" stroke-dasharray="4" /></g>
+                                    <g id="svg-current"><rect x="-75" y="-5" width="150" height="10" fill="url(#pG)" rx="2" /><line x1="0" y1="-5" x2="0" y2="-60" stroke="#60a5fa" stroke-width="2" /></g>
+                                    <circle cx="0" cy="0" r="4" fill="#94a3b8" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    </div>
+                </div>
+                <div class="column is-3">
+                    <div class="card">
+                        <header class="card-header"><p class="card-header-title">Command Center</p></header>
+                        <div class="card-content">
+                            <div class="buttons is-centered mb-2"><button class="button is-small is-dark" onclick="setMode('AUTO')">AUTO</button><button class="button is-small is-dark" onclick="setMode('MANUAL')">MANUAL</button></div>
+                            <div class="columns is-mobile mb-2"><div class="column"><button class="button is-fullwidth is-small is-warning" onclick="setTargetAngle(window.cleanAngle)">CLEAN</button></div><div class="column"><button id="btn-maint" class="button is-fullwidth is-small is-link" style="font-size:0.6rem;padding-left:0.25em;padding-right:0.25em;" onclick="setTargetAngle(window.maintAngle)" title="Set angle to maintenance position">MAINTENANCE</button></div></div>
+                            <div id="ctrl-manual" style="display:none;"><div class="field has-addons mb-2"><div class="control is-expanded"><input id="target-input" class="input is-small" type="number" placeholder="Target °"></div><div class="control"><button class="button is-small is-primary" onclick="setAngle()">SET</button></div></div><div class="columns is-mobile mb-2">
+                            <div class="column"><button class="button is-fullwidth is-small is-dark manual-ctrl" onmousedown="manualPress('WEST',1,event)" onmouseup="manualPress('WEST',0,event)" onmouseleave="manualPress('WEST',0,event)" ontouchstart="manualPress('WEST',1,event)" ontouchend="manualPress('WEST',0,event)">WEST</button></div>
+                            <div class="column"><button class="button is-fullwidth is-small is-dark manual-ctrl" onmousedown="manualPress('EAST',1,event)" onmouseup="manualPress('EAST',0,event)" onmouseleave="manualPress('EAST',0,event)" ontouchstart="manualPress('EAST',1,event)" ontouchend="manualPress('EAST',0,event)">EAST</button></div>
+                            </div></div>
+                            <div id="ctrl-auto" style="display:none;"><div class="field has-addons mb-1"><div class="control is-expanded"><input id="in-lat" class="input is-small" style="border-radius:4px 0 0 4px;" type="number" step="0.0001" placeholder="LAT"></div><div class="control is-expanded"><input id="in-lon" class="input is-small" style="border-radius:0;" type="number" step="0.0001" placeholder="LON"></div><div class="control"><button class="button is-small is-info" style="border-radius:0 4px 4px 0;" onclick="setLoc()">SAVE</button></div></div></div>
+                            <button class="button is-fullwidth is-small is-dark mb-2" onclick="syncTime()">SYNC SYSTEM CLOCK</button>
+                            <p class="heading-label mb-1">PITCH / WIDTH (m)</p>
+                            <div class="field has-addons mb-2"><div class="control is-expanded"><input id="in-pitch" class="input is-small" style="border-radius:4px 0 0 4px;" type="number" step="0.01" min="0.1" placeholder="PITCH" oninput="this.dataset.dirty=1"></div><div class="control is-expanded"><input id="in-width" class="input is-small" style="border-radius:0;" type="number" step="0.01" min="0.1" placeholder="WIDTH" oninput="this.dataset.dirty=1"></div><div class="control"><button class="button is-small is-info" style="border-radius:0 4px 4px 0;" onclick="setGeometry()">SAVE</button></div></div>
+                            <button class="button is-fullwidth is-small is-primary" onclick="scanWiFi()">WIFI SETUP</button>
+                            <div class="mt-5 is-size-7 has-text-grey">STAMP: <span id="clock" class="has-text-grey">...</span></div>
+                            <div class="mt-1 is-size-7 has-text-grey">DIAG: <code id="diag" style="background:transparent;color:#475569;">...</code></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="wifi-modal" class="modal">
+        <div class="modal-background"></div>
+        <div class="modal-card">
+            <header class="modal-card-head"><p class="modal-card-title">WiFi Setup</p><button class="delete" aria-label="close" onclick="document.getElementById('wifi-modal').classList.remove('is-active')"></button></header>
+            <section class="modal-card-body has-background-dark">
+                <div class="field"><label class="label has-text-white">Select Network</label><div id="ssid-list" class="has-text-white mb-4"></div><input id="wifi-ssid" class="input is-small mb-2" type="text" placeholder="SSID"><input id="wifi-pass" class="input is-small" type="password" placeholder="Password"></div>
+            </section>
+            <footer class="modal-card-foot"><button class="button is-primary" onclick="connectWiFi()">Connect & Restart</button></footer>
+        </div>
+    </div>
+    <footer class="footer">
+        <div class="container has-text-centered">
+            <p class="is-size-7 has-text-grey-light">&copy; 2026 GLARENERGY.</p>
+            <p class="is-size-7 mt-2"><a href="/oss-licenses" class="has-text-info">Legal & Open Source</a> | <a href="/restarts.txt" class="has-text-info">Restarts Log</a> | <a href="#" onclick="factoryReset()" class="has-text-danger">Factory Reset</a></p>
+        </div>
+    </footer>
+    <script src="/app.js"></script>
+</body>
+</html>
